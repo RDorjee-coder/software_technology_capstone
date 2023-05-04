@@ -30,18 +30,27 @@ class LifeExpectancy:
 
         self.predict_life_expectancy(lrm)
 
+        st.header('Exploratory Data Analysis')
+
         # Displaying buttons for user interaction
         st.write('\n')
-        data_analysis_button, year_life_expectancy_button, region_life_button = st.columns(3)
+        data_analysis_button, year_life_expectancy_button, gdp_life_button, distribution_life_button, \
+        correlation_button = st.columns(5)
 
-        if data_analysis_button.button('Exploratory Data Analysis'):
+        if data_analysis_button.button('Data Analysis'):
             self.exploratory_data_analysis()
 
-        if year_life_expectancy_button.button('Year Life Expectancy'):
+        if year_life_expectancy_button.button('Year-Life Expectancy'):
             self.year_life_expectancy()
 
-        if region_life_button.button('Region Life Expectancy'):
-            self.region_life_expectancy()
+        if gdp_life_button.button('GDP-Life Expectancy'):
+            self.gdp_life_expectancy()
+
+        if distribution_life_button.button('Distribution of Life Expectancy'):
+            self.distribution_life_expectancy()
+
+        if correlation_button.button('Correlation Variables'):
+            self.correlation_variables()
 
     def exploratory_data_analysis(self):
         st.subheader('First 5 Rows')
@@ -51,7 +60,9 @@ class LifeExpectancy:
         st.write(self.df.tail())
 
         st.subheader('Shape')
-        st.write(self.df.shape)
+        rows, cols = self.df.shape
+        st.write('Rows: ', rows)
+        st.write('Columns: ', cols)
 
         st.subheader('Column Names')
         st.write(self.df.columns)
@@ -65,15 +76,30 @@ class LifeExpectancy:
         st.subheader('Unique Values')
         st.write(self.df.nunique())
 
+        st.subheader('Missing Values')
+        st.write(self.df.isna().sum())
+
     def year_life_expectancy(self):
         fig, axis = plt.subplots()
-        sns.barplot(data=self.df, x='Year', y='Life_expectancy', hue='Region', ax=axis)
+        sns.lineplot(data=self.df, x='Year', y='Life_expectancy', hue='Region', ax=axis)
         sns.set(style='darkgrid', palette='Pastel1')
         st.pyplot(fig, use_container_width=False)
 
-    def region_life_expectancy(self):
+    def gdp_life_expectancy(self):
         fig, axis = plt.subplots()
-        sns.barplot(data=self.df, x='Region', y='Life_expectancy', hue='Region', ax=axis)
+        sns.scatterplot(data=self.df, x='GDP_per_capita', y='Life_expectancy', hue='Region', ax=axis)
+        sns.set(style='darkgrid')
+        st.pyplot(fig, use_container_width=False)
+
+    def distribution_life_expectancy(self):
+        fig, axis = plt.subplots()
+        sns.histplot(data=self.df, x='Life_expectancy', kde=True)
+        sns.set(style='darkgrid', palette='Pastel1')
+        st.pyplot(fig, use_container_width=False)
+
+    def correlation_variables(self):
+        fig, axis = plt.subplots()
+        sns.heatmap(self.df.corr(), annot=False, cmap='coolwarm')
         sns.set(style='darkgrid', palette='Pastel1')
         st.pyplot(fig, use_container_width=False)
 
@@ -139,7 +165,7 @@ class LifeExpectancy:
                     prediction = lrm.predict(input_df)
 
                     # Displaying prediction on user input
-                    st.write('Prediction on User Input:', prediction)
+                    st.write(f'Prediction on User Input: **{prediction[0]:.1f}**')
 
                 except Exception as e:
                     # Error handling for model prediction

@@ -38,7 +38,7 @@ class LifeExpectancy:
         correlation_button = st.columns(5)
 
         if data_analysis_button.button('Data Analysis'):
-            self.exploratory_data_analysis()
+            self.data_analysis()
 
         if year_life_expectancy_button.button('Year-Life Expectancy'):
             self.year_life_expectancy()
@@ -52,7 +52,7 @@ class LifeExpectancy:
         if correlation_button.button('Correlation Variables'):
             self.correlation_variables()
 
-    def exploratory_data_analysis(self):
+    def data_analysis(self):
         st.subheader('First 5 Rows')
         st.write(self.df.head())
 

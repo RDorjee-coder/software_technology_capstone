@@ -80,12 +80,18 @@ class LifeExpectancy:
         st.write(self.df.isna().sum())
 
     def year_life_expectancy(self):
+        year_life = self.df.groupby(['Region', 'Year'])['Life_expectancy'].mean()
+        st.write(year_life)
+
         fig, axis = plt.subplots()
         sns.lineplot(data=self.df, x='Year', y='Life_expectancy', hue='Region', ax=axis)
         sns.set(style='darkgrid', palette='Pastel1')
         st.pyplot(fig, use_container_width=False)
 
     def gdp_life_expectancy(self):
+        gdp_life = self.df.groupby(['Region', 'GDP_per_capita'])['Life_expectancy'].mean()
+        st.write(gdp_life)
+
         fig, axis = plt.subplots()
         sns.scatterplot(data=self.df, x='GDP_per_capita', y='Life_expectancy', hue='Region', ax=axis)
         sns.set(style='darkgrid')
@@ -93,7 +99,7 @@ class LifeExpectancy:
 
     def distribution_life_expectancy(self):
         fig, axis = plt.subplots()
-        sns.histplot(data=self.df, x='Life_expectancy', kde=True)
+        sns.kdeplot(data=self.df, x='Life_expectancy', fill=True)
         sns.set(style='darkgrid', palette='Pastel1')
         st.pyplot(fig, use_container_width=False)
 

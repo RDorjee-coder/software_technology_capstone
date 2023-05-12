@@ -10,14 +10,14 @@ from sklearn import metrics
 class LifeExpectancy:
     def __init__(self):
         st.set_page_config(
-            page_title="Ex-stream-ly Cool App",
-            page_icon="🧊",
-            layout="wide",
-            initial_sidebar_state="expanded"
+            page_title='Life Expectancy',
+            page_icon='🧊',
+            layout='wide',
+            initial_sidebar_state='expanded'
         )
 
         try:
-            self.df = pd.read_csv('~/Downloads/Life-Expectancy-Data-Updated.csv')
+            self.df = pd.read_csv('~/Desktop/SoftwareTechnologyCapstone(u3241944)/Life-Expectancy-Data-Updated.csv')
         except FileNotFoundError as e:
             st.error(f'File Not Found: {e}')
         else:
@@ -34,11 +34,14 @@ class LifeExpectancy:
 
         # Displaying buttons for user interaction
         st.write('\n')
-        data_analysis_button, year_life_expectancy_button, gdp_life_button, distribution_life_button, \
-        correlation_button = st.columns(5)
+        data_analysis_button, australia_life_button, year_life_expectancy_button, gdp_life_button, \
+        distribution_life_button, correlation_button = st.columns(6)
 
         if data_analysis_button.button('Data Analysis'):
             self.data_analysis()
+
+        if australia_life_button.button('Australian Life Expectancy'):
+            self.australia_life_expectancy()
 
         if year_life_expectancy_button.button('Year-Life Expectancy'):
             self.year_life_expectancy()
@@ -109,9 +112,18 @@ class LifeExpectancy:
         sns.set(style='darkgrid', palette='Pastel1')
         st.pyplot(fig, use_container_width=False)
 
+    def australia_life_expectancy(self):
+        australia_data = self.df[self.df['Country'] == 'Australia']
+        st.write(australia_data)
+
+        fig, axis = plt.subplots()
+        sns.lineplot(data=australia_data, x='Year', y='Life_expectancy', ax=axis)
+        sns.set(style='darkgrid')
+        st.pyplot(fig, use_container_width=False)
+
     def train_model(self):
         # Splitting data into features and target
-        X = self.df[['Infant_deaths', 'Adult_mortality', 'BMI', 'Population_mln', 'GDP_per_capita', 'Schooling',
+        X = self.df[['Infant_deaths', 'Under_five_deaths', 'Adult_mortality', 'BMI', 'Population_mln', 'GDP_per_capita',
                      'Economy_status_Developed']]
         y = self.df['Life_expectancy']
 
@@ -134,15 +146,24 @@ class LifeExpectancy:
         return lrm
 
     def collect_user_inputs(self):
-        input_columns = ['Infant_deaths', 'Adult_mortality', 'BMI', 'Population_mln', 'GDP_per_capita', 'Schooling',
-                         'Economy_status_Developed']
+        input_columns = ['Infant_deaths', 'Under_five_deaths', 'Adult_mortality', 'BMI', 'Population_mln',
+                         'GDP_per_capita', 'Economy_status_Developed']
         user_input = []
         for column in input_columns:
             col = column.replace('_', ' ')
             try:
-                user_input.append(st.text_input(f'Enter {col}'))
+                user_in = st.text_input(f'Enter {col}')
+
+                # Accept only 0 or 1 as input for Economy_status_Developed
+                if column == 'Economy_status_Developed' and user_in.strip() != '':
+                    if user_in.strip() in ['0', '1']:
+                        user_input.append(user_in.strip())
+                    else:
+                        st.error(f'{col} accepts either 0 or 1')
+                else:
+                    user_input.append(user_in.strip() if user_in else None)
             except ValueError:
-                st.error(f'Invalid input for {col}. Please enter a number.')
+                st.error(f'Invalid input for {col}. Please enter a number.', key=f'{column}_error')
                 return None
 
         # Creating input dataframe from user inputs
@@ -170,7 +191,6 @@ class LifeExpectancy:
                     # Making prediction on user input
                     prediction = lrm.predict(input_df)
 
-                    # Displaying prediction on user input
                     st.write(f'Prediction on User Input: **{prediction[0]:.1f}**')
 
                 except Exception as e:
